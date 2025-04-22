@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask App - Interview</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-light: #4895ef;
+            --secondary-color: #3f37c9;
+            --accent-color: #f72585;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --dark-color: #1f1f1f;
+            --light-color: #ffffff;
+            --gray-light: #f8f9fa;
+            --gray-med: #e9ecef;
+            --gray-dark: #6c757d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --border-radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: var(--gray-light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--light-color);
+            padding: 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--light-color);
+            text-decoration: none;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--light-color);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+        }
+
+        nav a:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--accent-color);
+            transition: var(--transition);
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .card {
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-med);
+        }
+
+        .card-header h2 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .vignette-container {
+            background-color: var(--light-color);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            line-height: 1.8;
+        }
+
+        .vignette-container p {
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .recording-controls {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        #recordButton {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+        }
+
+        #recordButton:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        #stopButton {
+            background-color: var(--danger-color);
+            color: var(--light-color);
+            display: none;
+        }
+
+        #stopButton:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        #saveButton {
+            background-color: var(--success-color);
+            color: var(--dark-color);
+            display: none;
+        }
+
+        #saveButton:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        #resetButton {
+            background-color: var(--gray-dark);
+            color: var(--light-color);
+        }
+
+        #resetButton:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .recording-indicator {
+            display: none;
+            align-items: center;
+            color: var(--danger-color);
+            font-weight: 600;
+            gap: 0.5rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .recording-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--danger-color);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .transcript-container {
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-med);
+            line-height: 1.8;
+        }
+
+        .empty-transcript {
+            color: var(--gray-dark);
+            font-style: italic;
+            display: flex;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            min-height: 100px;
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+
+        footer p {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--gray-dark);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            nav ul {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .recording-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">Interview App</a>
+                <nav>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/interview">Interview</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Interview Scenario</h2>
+                    <p>Please read the following scenario and respond as if you were in an actual interview.</p>
+                </div>
+                <div class="card-body">
+                    <div class="vignette-container">
+                        <p>You are applying for a software developer position at a technology company.</p>
+                        <p>The interviewer has asked you to describe a challenging project you worked on,
+                            what specific problems you encountered, and how you solved them. They're particularly
+                            interested in how you handled any team conflicts or technical roadblocks.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Record Your Response</h2>
+                </div>
+                <div class="card-body">
+                    <div class="recording-controls">
+                        <button id="recordButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <circle cx="8" cy="8" r="8" />
+                            </svg>
+                            Start Recording
+                        </button>
+                        <button id="stopButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5z" />
+                            </svg>
+                            Stop Recording
+                        </button>
+                        <button id="saveButton">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
+                                <path
+                                    d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
+                            </svg>
+                            Save Recording
+                        </button>
+                        <button id="resetButton" style="background-color: var(--gray-dark); color: var(--light-color);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path
+                                    d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z" />
+                                <path
+                                    d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z" />
+                            </svg>
+                            Reset
+                        </button>
+                        <div class="recording-indicator" id="recordingIndicator">
+                            <span class="recording-dot"></span> Recording...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Your Response Transcript</h2>
+                </div>
+                <div class="card-body">
+                    <div class="transcript-container" id="transcript">
+                        <div class="empty-transcript" id="emptyTranscript">Your transcribed speech will appear here
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Interview App | All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <script>
+        let recognition;
+        let recordedChunks = [];
+        let mediaRecorder;
+        let audioStream;
+
+        // DOM elements
+        const recordButton = document.getElementById('recordButton');
+        const stopButton = document.getElementById('stopButton');
+        const saveButton = document.getElementById('saveButton');
+        const resetButton = document.getElementById('resetButton');
+        const transcript = document.getElementById('transcript');
+        const recordingIndicator = document.getElementById('recordingIndicator');
+        let emptyTranscript = document.getElementById('emptyTranscript');
+
+        // Check HTTPS (required for getUserMedia in many browsers)
+        if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            const httpsWarning = document.createElement('div');
+            httpsWarning.style.padding = '10px';
+            httpsWarning.style.background = 'var(--danger-color)';
+            httpsWarning.style.color = 'white';
+            httpsWarning.style.textAlign = 'center';
+            httpsWarning.style.fontWeight = 'bold';
+            httpsWarning.style.marginBottom = '15px';
+            httpsWarning.style.borderRadius = 'var(--border-radius)';
+            httpsWarning.innerHTML = 'Warning: Recording may not work without HTTPS. Please use a secure connection.';
+
+            // Insert warning at the top of the recording card body
+            const recordingCardBody = document.querySelector('.card:nth-child(2) .card-body');
+            if (recordingCardBody) {
+                recordingCardBody.insertBefore(httpsWarning, recordingCardBody.firstChild);
+            }
+        }
+
+        // Check browser compatibility
+        function checkBrowserCompatibility() {
+            const browserCompatible = {
+                speechRecognition: !!(window.SpeechRecognition || window.webkitSpeechRecognition),
+                mediaDevices: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+                mediaRecorder: !!window.MediaRecorder
+            };
+
+            let compatMessage = '';
+            if (!browserCompatible.speechRecognition) {
+                compatMessage += 'Speech recognition is not supported in this browser. ';
+            }
+            if (!browserCompatible.mediaDevices) {
+                compatMessage += 'Media Devices API is not supported in this browser. ';
+            }
+            if (!browserCompatible.mediaRecorder) {
+                compatMessage += 'MediaRecorder API is not supported in this browser. ';
+            }
+
+            if (compatMessage) {
+                compatMessage += 'Please use Chrome, Edge, or Firefox for best experience.';
+
+                const compatWarning = document.createElement('div');
+                compatWarning.style.padding = '10px';
+                compatWarning.style.background = '#ff9800';
+                compatWarning.style.color = 'white';
+                compatWarning.style.textAlign = 'center';
+                compatWarning.style.fontWeight = 'bold';
+                compatWarning.style.marginBottom = '15px';
+                compatWarning.style.borderRadius = 'var(--border-radius)';
+                compatWarning.innerHTML = compatMessage;
+
+                // Insert compatibility warning at the top of the recording card body
+                const recordingCardBody = document.querySelector('.card:nth-child(2) .card-body');
+                if (recordingCardBody) {
+                    recordingCardBody.insertBefore(compatWarning, recordingCardBody.firstChild);
+                }
+            }
+
+            return browserCompatible;
+        }
+
+        // Run compatibility check on page load
+        checkBrowserCompatibility();
+
+        // Initialize speech recognition
+        function initSpeechRecognition() {
+            try {
+                // If recognition already exists, stop it first
+                if (recognition) {
+                    try {
+                        recognition.stop();
+                    } catch (err) {
+                        console.warn('Error stopping existing recognition:', err);
+                    }
+                    recognition = null;
+                }
+
+                window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+                if (!window.SpeechRecognition) {
+                    throw new Error('Speech recognition not supported in this browser');
+                }
+
+                recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                // Create a variable to store transcript that persists between recognition restarts
+                window.fullTranscriptBuffer = window.fullTranscriptBuffer || '';
+                let fullTranscript = window.fullTranscriptBuffer;
+
+                recognition.onresult = function (event) {
+                    let interimTranscript = '';
+                    let currentTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            fullTranscript += transcript + ' ';
+                            window.fullTranscriptBuffer = fullTranscript; // Save to global for persistence
+                            currentTranscript = '';
+                        } else {
+                            currentTranscript += transcript;
+                        }
+                    }
+
+                    // Update the transcript display
+                    if (emptyTranscript) {
+                        emptyTranscript.style.display = 'none';
+                    }
+
+                    document.getElementById('transcript').innerHTML =
+                        fullTranscript + '<span style="color: var(--gray-dark);">' + currentTranscript + '</span>';
+                };
+
+                // Handle recognition end (such as when pauses are detected)
+                recognition.onend = function () {
+                    // Restart recognition if we're still supposed to be recording
+                    if (mediaRecorder && mediaRecorder.state === 'recording') {
+                        try {
+                            recognition.start();
+                        } catch (err) {
+                            console.error('Error restarting recognition:', err);
+                        }
+                    }
+                };
+
+                recognition.onerror = function (event) {
+                    console.error('Speech recognition error:', event.error);
+                    // Only restart on non-fatal errors
+                    if (mediaRecorder && mediaRecorder.state === 'recording' &&
+                        event.error !== 'no-speech' && event.error !== 'audio-capture' &&
+                        event.error !== 'not-allowed') {
+                        setTimeout(() => {
+                            try {
+                                recognition.start();
+                            } catch (err) {
+                                console.error('Error restarting recognition after error:', err);
+                            }
+                        }, 1000);
+                    } else if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+                        // Handle permission errors
+                        alert('Microphone access denied or microphone not available. Please check your browser permissions.');
+                        stopRecording();
+                    }
+                };
+
+                return true;
+            } catch (err) {
+                console.error('Error initializing speech recognition:', err);
+                alert('Speech recognition not supported in this browser or an error occurred: ' + err.message);
+                return false;
+            }
+        }
+
+        // Start recording audio and speech recognition
+        recordButton.addEventListener('click', async () => {
+            // Reset any previous errors
+            try {
+                // Check if navigator.mediaDevices exists (older browsers might not support it)
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    const msg = 'Media devices API not supported in this browser.';
+                    console.error(msg);
+                    alert(msg + ' Please try using Chrome, Firefox, or Edge.');
+                    return;
+                }
+
+                // Add a pre-check for permissions
+                if (navigator.permissions && navigator.permissions.query) {
+                    try {
+                        const permissionStatus = await navigator.permissions.query({ name: 'microphone' });
+                        if (permissionStatus.state === 'denied') {
+                            const msg = 'Microphone permission has been explicitly denied. Please reset permissions in your browser settings and try again.';
+                            console.error(msg);
+                            alert(msg);
+                            return;
+                        }
+                    } catch (permErr) {
+                        console.warn('Could not query permissions API:', permErr);
+                        // Continue anyway as some browsers don't support this
+                    }
+                }
+
+                // Request audio permission - Simplified first attempt
+                try {
+                    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                } catch (micErr) {
+                    console.error('Error accessing microphone:', micErr.name, micErr.message);
+                    if (micErr.name === 'NotFoundError' || micErr.name === 'DevicesNotFoundError') {
+                        alert('No microphone detected. Please connect a microphone and try again.');
+                    } else if (micErr.name === 'NotAllowedError' || micErr.name === 'PermissionDeniedError') {
+                        alert('Microphone access denied. Please allow microphone access in your browser settings for this site and try again.');
+                    } else if (micErr.name === 'AbortError') {
+                        alert('Microphone request aborted. Please try again.');
+                    } else if (micErr.name === 'NotReadableError' || micErr.name === 'TrackStartError') {
+                        alert('Microphone is currently in use by another application or hardware error occurred. Please close other apps using the mic or check your hardware.');
+                    } else {
+                        alert('Could not access microphone: ' + micErr.message);
+                    }
+                    return; // Stop execution if we can't get the stream
+                }
+
+                // Check MediaRecorder compatibility
+                if (!window.MediaRecorder) {
+                    alert('MediaRecorder API is not supported in this browser. Cannot record audio.');
+                    stopAllStreams();
+                    return;
+                }
+                const mimeType = 'audio/webm';
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    alert(`Audio format ${mimeType} is not supported by MediaRecorder in this browser. Cannot record audio.`);
+                    stopAllStreams();
+                    return;
+                }
+
+                // Set up media recorder with proper error handling
+                try {
+                    mediaRecorder = new MediaRecorder(audioStream, { mimeType: mimeType });
+                } catch (err) {
+                    console.error('Error creating MediaRecorder:', err);
+                    alert('Error creating MediaRecorder: ' + err.message);
+                    stopAllStreams(); // Clean up the stream
+                    return;
+                }
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data && event.data.size > 0) {
+                        recordedChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onerror = (event) => {
+                    console.error('Media recorder error:', event.error);
+                    stopRecording();
+                    alert('An error occurred with the audio recording: ' + event.error.message);
+                };
+
+                mediaRecorder.onstop = () => {
+                    console.log('MediaRecorder stopped.');
+                    // Additional cleanup or state updates if needed when recording stops
+                };
+
+                // Clear previous recordings and transcript
+                recordedChunks = [];
+                window.fullTranscriptBuffer = ''; // Clear persistent transcript buffer
+                transcript.innerHTML = '<div class="empty-transcript" id="emptyTranscript">Your transcribed speech will appear here</div>';
+                emptyTranscript = document.getElementById('emptyTranscript');
+
+                // Initialize and start speech recognition (only if supported)
+                const compat = checkBrowserCompatibility();
+                let recognitionInitialized = false;
+                if (compat.speechRecognition) {
+                    recognitionInitialized = initSpeechRecognition();
+                    if (!recognitionInitialized) {
+                        console.warn('Speech recognition initialization failed, proceeding with audio only.');
+                        alert('Speech recognition failed to initialize. Recording audio only (no transcription).');
+                    }
+                } else {
+                    console.warn('Speech recognition not supported, proceeding with audio only.');
+                }
+
+                // Start recording
+                try {
+                    mediaRecorder.start(100); // Start recording in chunks
+                    console.log('MediaRecorder started successfully.');
+
+                    // Only start recognition if it was successfully initialized
+                    if (recognitionInitialized && recognition) {
+                        try {
+                            recognition.start();
+                            console.log('SpeechRecognition started successfully.');
+                        } catch (err) {
+                            console.error('Error starting SpeechRecognition:', err);
+                            // Continue with audio recording even if speech recognition fails to start
+                        }
+                    }
+
+                    // Update UI
+                    recordButton.style.display = 'none';
+                    stopButton.style.display = 'flex';
+                    recordingIndicator.style.display = 'flex';
+
+                } catch (err) {
+                    console.error('Error starting MediaRecorder:', err);
+                    alert('Error starting recording process: ' + err.message);
+                    stopAllStreams(); // Clean up on error
+                }
+
+            } catch (err) {
+                // Catch any unexpected errors in the outer try block
+                console.error('Unexpected error during start recording process:', err);
+                alert('An unexpected error occurred: ' + err.message);
+                stopAllStreams(); // Ensure cleanup
+            }
+        });
+
+        // Utility to stop all tracks on the stream
+        function stopAllStreams() {
+            if (audioStream) { // Check if audioStream exists
+                try {
+                    // Check if getTracks exists and is a function
+                    if (typeof audioStream.getTracks === 'function') {
+                        audioStream.getTracks().forEach(track => {
+                            console.log(`Stopping track: ${track.kind} - ${track.label} - ReadyState: ${track.readyState}`);
+                            // Check readyState before stopping, though stop() should handle non-live tracks gracefully
+                            if (track.readyState === 'live') {
+                                track.stop();
+                            }
+                        });
+                        console.log('Attempted to stop all audio tracks.');
+                    } else {
+                        console.warn('audioStream.getTracks is not a function or is missing.');
+                    }
+                } catch (err) {
+                    // Catch errors during the stopping process
+                    console.warn('Error occurred while stopping audio tracks:', err);
+                }
+                // Ensure stream is always nullified if it existed
+                audioStream = null;
+            } else {
+                console.log('stopAllStreams called but audioStream is already null.');
+            }
+        }
+
+        // Stop recording function for reuse
+        function stopRecording() {
+            console.log('Stop recording requested.');
+            // Stop media recorder
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                try {
+                    mediaRecorder.stop();
+                    // Note: onstop handler will be called after this
+                } catch (err) {
+                    console.error('Error stopping media recorder:', err);
+                }
+            } else {
+                console.log('MediaRecorder already inactive or not initialized.');
+            }
+
+            // Stop speech recognition
+            if (recognition) {
+                try {
+                    recognition.stop();
+                    console.log('SpeechRecognition stopped.');
+                } catch (err) {
+                    console.error('Error stopping recognition:', err);
+                }
+            }
+
+            // Stop audio stream tracks AFTER recorder/recognition are stopped
+            stopAllStreams();
+
+            // Update UI
+            stopButton.style.display = 'none';
+            saveButton.style.display = recordedChunks.length > 0 ? 'flex' : 'none';
+            recordButton.style.display = 'flex';
+            recordingIndicator.style.display = 'none';
+            console.log('UI updated after stopping.');
+        }
+
+        // Function to reset everything
+        function resetRecording() {
+            console.log('Reset requested.');
+            // Stop anything that might be running (calls stopRecording which handles streams etc)
+            stopRecording();
+
+            // Ensure recognition object is nullified
+            if (recognition) {
+                recognition = null;
+            }
+            if (mediaRecorder) {
+                mediaRecorder = null;
+            }
+
+            // Clear recorded data
+            recordedChunks = [];
+            window.fullTranscriptBuffer = '';
+
+            // Reset UI components that stopRecording might not reset if called directly
+            transcript.innerHTML = '<div class="empty-transcript" id="emptyTranscript">Your transcribed speech will appear here once you start recording</div>';
+            emptyTranscript = document.getElementById('emptyTranscript');
+            stopButton.style.display = 'none';
+            saveButton.style.display = 'none';
+            recordButton.style.display = 'flex';
+            recordingIndicator.style.display = 'none';
+
+            // Show success message
+            alert('Recording system has been reset. You can try recording again.');
+            console.log('Reset complete.');
+        }
+
+        // Function to save the recording
+        function saveRecording() {
+            if (recordedChunks.length === 0) {
+                alert('No recording to save');
+                return;
+            }
+
+            try {
+                // Create a blob from the recorded chunks
+                const audioBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+
+                // Create download link
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const link = document.createElement('a');
+                link.style.display = 'none';
+                link.href = audioUrl;
+                link.download = 'interview_recording.webm'; // Filename for download
+
+                // Add to document, trigger click, remove
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Optional: Revoke the object URL to free up memory
+                window.URL.revokeObjectURL(audioUrl);
+
+                // Reset UI after saving
+                saveButton.style.display = 'none';
+
+            } catch (err) {
+                console.error('Error saving recording:', err);
+                alert('Error saving recording: ' + err.message);
+            }
+        }
+
+        // Reset button event
+        stopButton.addEventListener('click', stopRecording);
+        saveButton.addEventListener('click', saveRecording);
+        resetButton.addEventListener('click', resetRecording);
+    </script>
+</body>
+
+</html>
